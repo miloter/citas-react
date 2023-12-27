@@ -4,13 +4,21 @@ import HeaderApp from "./components/HeaderApp.jsx";
 import ListadoPacientes from "./components/ListadoPacientes.jsx";
 import { lsKeyPacientes } from './helpers/UtilsApp.js';
 
-// Carga desde el Local Storage la primera vez que se crea el componente
-const lsPacientes = JSON.parse(localStorage.getItem(lsKeyPacientes) || '[]');
+// Para comprobar que solo se cargan una vez los pacientes, desde Local Storage
+let lsPacientesLoaded = false;
 
 export default function App() {
-  // const sPacientes = localStorage.getItem(lsPacientes) || '[]';
-  const [pacientes, setPacientes] = useState(lsPacientes);
+  const [pacientes, setPacientes] = useState([]);
   const [paciente, setPaciente] = useState({});
+
+  // Carga desde el Local Storage la primera vez que se crea el componente
+  useEffect(() => {
+    if (lsPacientesLoaded) return;
+    setPacientes(JSON.parse(localStorage.getItem(lsKeyPacientes)
+      || '[]')
+    );
+    lsPacientesLoaded = true;
+  }, []);
 
   // Actualiza Local Storage cada vez que cambia la lista de pacientes
   useEffect(() => localStorage.setItem(lsKeyPacientes,
@@ -20,7 +28,7 @@ export default function App() {
   function eliminarPaciente(id) {
     if (!confirm(`¿Eliminar Paciente con el ID ${id}?`)) return;
     const newPacientes = pacientes.filter(p => p.id !== id);
-    setPacientes(newPacientes);    
+    setPacientes(newPacientes);
   }
 
   return (
